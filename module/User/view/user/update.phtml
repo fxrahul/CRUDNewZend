@@ -1,0 +1,45 @@
+<form action=<?= $this->url('user', ['action' => 'update',"id"=>$user["_id"]]) ?> method="post">
+<div class="form-group">
+    <label for="name">Name:</label>
+    <input type="name" class="form-control" id="name" name="name" value="<?php echo $user["name"] ?>">
+  </div>
+  <div class="form-group">
+    <label for="email">Email address:</label>
+    <input type="email" class="form-control" id="email" name="email" value="<?php echo $user["username"] ?>">
+  </div>
+  <div class="form-group">
+    <label for="pwd">Password:</label>
+    <input type="password" class="form-control" id="opwd" name="opwd">
+  </div>
+  <?php 
+
+if(!empty($error)){
+?>
+<br>
+<div class="alert alert-danger">
+<?php echo $error  ?>
+</div>
+
+<?php  } ?>
+  <input type="checkbox" name="pwd_checkbox" onclick="toggleNewPass(this)" value="1">Change Password:
+  <br>
+  <div class="form-group" id="new_pass">
+    <label for="pwd">New Password:</label>
+    <input type="password" class="form-control" id="npwd" name="npwd">
+  </div>
+  <br>
+
+  <button type="submit" class="btn btn-default">Submit</button>
+</form>
+
+
+<script>
+function toggleNewPass(e){
+  if(e.checked){
+    document.querySelector("#new_pass").style.display = "block";
+  }
+  else{
+    document.querySelector("#new_pass").style.display = "none";
+  }
+}
+</script>
