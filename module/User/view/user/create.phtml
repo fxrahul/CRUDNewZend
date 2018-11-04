@@ -1,19 +1,36 @@
-<form action=<?= $this->url('user', ['action' => 'add']) ?> method="post">
+<?php 
+
+if(!empty($error)){
+  foreach($error as $e){
+?>
+<br>
+<div class="alert alert-danger">
+<?php echo $e  ?>
+</div>
+
+<?php  }} ?>
+
+<form action=<?= $this->url('user', ['action' => 'add']) ?> method="post" onsubmit="passValidator(event)">
 <div class="form-group">
     <label for="name">Name:</label>
-    <input type="name" class="form-control" id="name" name="name">
+    <input required type="name" class="form-control" id="name" name="name">
   </div>
   <div class="form-group">
     <label for="email">Email address:</label>
-    <input type="email" class="form-control" id="email" name="email">
+    <input required type="email" class="form-control" id="email" name="email">
   </div>
   <div class="form-group">
     <label for="pwd">Password:</label>
-    <input type="password" class="form-control" id="pwd" name="pwd">
+    <input required type="password" class="form-control" id="pwd" name="pwd" minlength="6">
   </div>
   <button type="submit" class="btn btn-default">Submit</button>
 </form>
-<?php 
-
-
-?>
+<script>
+function passValidator(event){
+  let pass = document.querySelector("#pwd").value;
+  if(pass.length<6){
+    alert("password length should be greater than or equal to 6");
+    event.preventDefault();
+  }
+}
+</script>

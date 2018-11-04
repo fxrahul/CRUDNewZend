@@ -1,31 +1,35 @@
-<form action=<?= $this->url('user', ['action' => 'update',"id"=>$user["_id"]]) ?> method="post">
-<div class="form-group">
-    <label for="name">Name:</label>
-    <input type="name" class="form-control" id="name" name="name" value="<?php echo $user["name"] ?>">
-  </div>
-  <div class="form-group">
-    <label for="email">Email address:</label>
-    <input type="email" class="form-control" id="email" name="email" value="<?php echo $user["username"] ?>">
-  </div>
-  <div class="form-group">
-    <label for="pwd">Password:</label>
-    <input type="password" class="form-control" id="opwd" name="opwd">
-  </div>
-  <?php 
+<?php 
 
 if(!empty($error)){
+  foreach($error as $e){
 ?>
 <br>
 <div class="alert alert-danger">
-<?php echo $error  ?>
+<?php echo $e  ?>
 </div>
 
-<?php  } ?>
-  <input type="checkbox" name="pwd_checkbox" onclick="toggleNewPass(this)" value="1">Change Password:
+<?php  }} ?>
+
+<form action=<?= $this->url('user', ['action' => 'update',"id"=>$user["_id"]]) ?> method="post" onsubmit="passValidator(event)">
+<div class="form-group">
+    <label for="name">Name:</label>
+    <input required type="name" class="form-control" id="name" name="name" value="<?php echo $user["name"] ?>">
+  </div>
+  <div class="form-group">
+    <label for="email">Email address:</label>
+    <input required type="email" class="form-control" id="email" name="email" value="<?php echo $user["username"] ?>">
+  </div>
+ 
+ 
+  <input  type="checkbox" name="pwd_checkbox" onclick="toggleNewPass(this)" value="1" >Change Password:
   <br>
+  <div class="form-group" id="old_pass">
+    <label for="pwd">Password:</label>
+    <input  type="password" class="form-control" id="opwd" name="opwd" minlength="6">
+  </div>
   <div class="form-group" id="new_pass">
     <label for="pwd">New Password:</label>
-    <input type="password" class="form-control" id="npwd" name="npwd">
+    <input  type="password" class="form-control" id="npwd" name="npwd">
   </div>
   <br>
 
@@ -34,12 +38,31 @@ if(!empty($error)){
 
 
 <script>
+var hidden = true;
 function toggleNewPass(e){
   if(e.checked){
     document.querySelector("#new_pass").style.display = "block";
+    document.querySelector("#new_pass input").required = true;
+    document.querySelector("#old_pass").style.display = "block";
+    document.querySelector("#old_pass  input").required = true;
   }
   else{
     document.querySelector("#new_pass").style.display = "none";
+    document.querySelector("#new_pass input").required = false;
+    document.querySelector("#old_pass").style.display = "none";
+    document.querySelector("#old_pass  input").required = false;
+  }
+}
+
+function passValidator(event){
+  if(hidden){
+    return;
+  }
+  let opass = document.querySelector("#opwd").value;
+  let npass = document.querySelector("#npwd").value;
+  if(opass.length<6  || npass.length<6){
+    alert("password length should be greater than or equal to 6");
+    event.preventDefault();
   }
 }
 </script>

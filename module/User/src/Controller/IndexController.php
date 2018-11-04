@@ -40,7 +40,16 @@ class IndexController extends AbstractActionController
         $request = $this->getRequest();
         if($request->isPost()){
             $username = $request->getPost('email');
+            $error = [];
             $name = $request->getPost('name');
+            $collection = $this->getCollection();
+            $existing_user =  $collection->count(array('username'=>$username));
+            if($existing_user>0){
+                $error["email"] = "Email already Exists!";
+                $contentView = new ViewModel(["error"=>$error]);
+                $contentView->setTemplate('user/create.phtml');
+                return $contentView;
+            }
             $password = password_hash($request->getPost('pwd'),PASSWORD_DEFAULT);
             $collection = $this->getCollection();
             $result = $collection->insertOne( [ 'name' => $name, 'username' => $username,'password'=>$password ] );
@@ -79,28 +88,45 @@ class IndexController extends AbstractActionController
         $id = $this->params()->fromRoute('id');
         $request = $this->getRequest();
         $collection = $this->getCollection();
+        $error = [];
         $user = $collection->findOne(["_id"=> new MongoDB\BSON\ObjectId("$id")]);
-        if(password_verify($request->getPost('opwd'),$user["password"])){
+        
             $username = $request->getPost('email');
             $name = $request->getPost('name');
+            if($username != $user["username"]){
+            $existing_user =  $collection->count(array('username'=>$username));
+            if($existing_user>0){
+                $error["email"] = "Email already Exists!";
+            }
+        }
             $newdata;
-            if(!empty($request->getPost('pwd_checkbox'))){
-                $password = password_hash($request->getPost('npwd'),PASSWORD_DEFAULT);
-                $newData = array('$set'=>array("username"=>$username,"password"=>$password,"name"=>$name));
+            if(!empty($request->getPost('pwd_checkbox')) && empty($error)){
+                if(password_verify($request->getPost('opwd'),$user["password"])){
+                    $password = password_hash($request->getPost('npwd'),PASSWORD_DEFAULT);
+                    $newData = array('$set'=>array("username"=>$username,"password"=>$password,"name"=>$name));
             }
             else{
-                $newData = array('$set'=>array("username"=>$username,"name"=>$name));
+                $error["password"] = "Old Password is Wrong!";
             }
-             
-            
+        }
+        else if(empty($error)){
+            $newData = array('$set'=>array("username"=>$username,"name"=>$name));
+        }
+        if(empty($error)){
             $collection->updateOne(["_id"=>new MongoDB\BSON\ObjectId("$id")],$newData);
             return $this->redirect()->toRoute('user');
         }
+        else{
+            $contentView = new ViewModel(["user"=>$user,"error"=>$error]);
+            $contentView->setTemplate('user/update.phtml');
+           
+            return $contentView;
+        }
+            
+            
         
-        $contentView = new ViewModel(["user"=>$user,"error"=>"Password is Wrong!"]);
-        $contentView->setTemplate('user/update.phtml');
-            // $id = $this->params()->fromRoute('id');
-        return $contentView;
+        
+        
     }
 
     public function getCollection(){
