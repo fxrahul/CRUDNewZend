@@ -10,7 +10,6 @@ class ComposerStaticInit7cd5d83be701d9fed11cfedcd811c840
         '3a37ebac017bc098e9a86b35401e7a68' => __DIR__ . '/..' . '/mongodb/mongodb/src/functions.php',
         '06dd8487319ccd8403765f5b8c9f2d61' => __DIR__ . '/..' . '/alcaeus/mongo-php-adapter/lib/Mongo/functions.php',
         '0e6d7bf4a5811bfa5cf40c5ccd6fae6a' => __DIR__ . '/..' . '/symfony/polyfill-mbstring/bootstrap.php',
-        '34901568a1e26d13dd475cb2c85e0284' => __DIR__ . '/..' . '/zendframework/zend-form/autoload/formElementManagerPolyfill.php',
     );
 
     public static $prefixLengthsPsr4 = array (
@@ -25,11 +24,7 @@ class ComposerStaticInit7cd5d83be701d9fed11cfedcd811c840
             'Zend\\Mvc\\' => 9,
             'Zend\\ModuleManager\\' => 19,
             'Zend\\Loader\\' => 12,
-            'Zend\\InputFilter\\' => 17,
-            'Zend\\Hydrator\\' => 14,
             'Zend\\Http\\' => 10,
-            'Zend\\Form\\' => 10,
-            'Zend\\Filter\\' => 12,
             'Zend\\EventManager\\' => 18,
             'Zend\\Escaper\\' => 13,
             'Zend\\Config\\' => 12,
@@ -115,25 +110,9 @@ class ComposerStaticInit7cd5d83be701d9fed11cfedcd811c840
         array (
             0 => __DIR__ . '/..' . '/zendframework/zend-loader/src',
         ),
-        'Zend\\InputFilter\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/zendframework/zend-inputfilter/src',
-        ),
-        'Zend\\Hydrator\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/zendframework/zend-hydrator/src',
-        ),
         'Zend\\Http\\' => 
         array (
             0 => __DIR__ . '/..' . '/zendframework/zend-http/src',
-        ),
-        'Zend\\Form\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/zendframework/zend-form/src',
-        ),
-        'Zend\\Filter\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/zendframework/zend-filter/src',
         ),
         'Zend\\EventManager\\' => 
         array (
