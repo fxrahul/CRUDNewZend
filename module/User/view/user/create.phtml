@@ -1,5 +1,6 @@
 <?php 
-
+$email = (!empty($user))?$user["email"]:"";
+$name = (!empty($user))?$user["name"]:"";
 if(!empty($error)){
   foreach($error as $e){
 ?>
@@ -13,11 +14,11 @@ if(!empty($error)){
 <form action=<?= $this->url('user', ['action' => 'add']) ?> method="post" onsubmit="passValidator(event)">
 <div class="form-group">
     <label for="name">Name:</label>
-    <input required type="name" class="form-control" id="name" name="name">
+    <input required type="name" class="form-control" id="name" name="name" value="<?php echo $name;  ?>">
   </div>
   <div class="form-group">
     <label for="email">Email address:</label>
-    <input required type="email" class="form-control" id="email" name="email">
+    <input required type="email" class="form-control" id="email" name="email" value="<?php echo $email;  ?>">
   </div>
   <div class="form-group">
     <label for="pwd">Password:</label>
@@ -25,12 +26,3 @@ if(!empty($error)){
   </div>
   <button type="submit" class="btn btn-default">Submit</button>
 </form>
-<script>
-function passValidator(event){
-  let pass = document.querySelector("#pwd").value;
-  if(pass.length<6){
-    alert("password length should be greater than or equal to 6");
-    event.preventDefault();
-  }
-}
-</script>

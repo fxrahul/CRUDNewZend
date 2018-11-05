@@ -22,16 +22,9 @@
         <?= $this->headScript()
             ->prependFile($this->basePath('js/bootstrap.min.js'))
             ->prependFile($this->basePath('js/jquery-3.1.0.min.js'))
+            ->prependFile($this->basePath('js/scripts.js'))
         ?>
-        <style>
-        .list-group-item{
-            display:inline-block !important;
-            width:70%;
-        }
-        #new_pass,#old_pass{
-            display:none;
-        }
-        </style>
+       
     </head>
     <body>
         <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">

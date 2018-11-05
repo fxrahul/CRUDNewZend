@@ -17,12 +17,14 @@
         "zendframework/zend-mvc": "^3.0.1",
         "zfcampus/zf-development-mode": "^3.0",
         "alcaeus/mongo-php-adapter": "^1.1",
-        "mongodb/mongodb": "1.2.0"
+        "doctrine/mongodb-odm": "^1.2"
     },
     "autoload": {
         "psr-4": {
             "Application\\": "module/Application/src/",
-            "User\\": "module/User/src/"
+            "User\\": "module/User/src/",
+            "Config\\":"config",
+            "Document\\":"module/User/document"
         }
     },
     "autoload-dev": {

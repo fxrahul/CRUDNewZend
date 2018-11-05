@@ -9,50 +9,60 @@ namespace User\Controller;
 use Zend\Mvc\Controller\AbstractActionController;
 use Zend\View\Model\ViewModel;
 use RuntimeException ;
-
+// require_once __DIR__.'/../../../../config/config.php';
+use Config\Config;
+use Document\User;
 use MongoDB;
-use MongoDB\Driver\Manager;
 
-use MongoDB\Driver\Query;
 
 class IndexController extends AbstractActionController
 {
     public function indexAction()
     {
-    
-        $collection = $this->getCollection();
-        $users = $collection->find();
-       
-        // return new ViewModel();
-        // $view =new ViewModel();
-        // $view->setTemplate('post/head.phtml');
-        $contentView = new ViewModel(array('users'=>$users));
+        
+        $dm = (new Config())->getConnection();
+        $users = $dm->createQueryBuilder('Document\User')
+        ->hydrate(false)
+        ->getQuery()
+        ->execute();
+        //print_r($users);
+        // $user = new User();
+        // $user->setId(new MongoDB\BSON\ObjectId());
+        // $user->setName("rohit");
+        // $user->setEmail("rs31622@gmail.com");
+        // $user->setPassword("Password");
+        // $dm->persist($user);
+        // $dm->flush();
+        $contentView = new ViewModel(array("users"=>$users));
         $contentView->setTemplate('user/index.phtml'); // path to phtml file under view folder
-        // $bottomView = new ViewModel();
-        // $bottomView->setTemplate('post/bottom.phtml');
-        // $view->addChild($contentView)
-        //         ->addChild($bottomView);
         return $contentView;
     }
 
     public function addAction()
     {
+        $dm = (new Config())->getConnection();
         $request = $this->getRequest();
         if($request->isPost()){
-            $username = $request->getPost('email');
+            $email = $request->getPost('email');
             $error = [];
             $name = $request->getPost('name');
-            $collection = $this->getCollection();
-            $existing_user =  $collection->count(array('username'=>$username));
+            $tempUser = ["name"=>$name,"email"=>$email];
+            $existing_user = $dm->createQueryBuilder('Document\User')->field('email')->equals($email)
+            ->getQuery()->execute()->count();
             if($existing_user>0){
                 $error["email"] = "Email already Exists!";
-                $contentView = new ViewModel(["error"=>$error]);
+                $contentView = new ViewModel(["user"=>$tempUser,"error"=>$error]);
                 $contentView->setTemplate('user/create.phtml');
                 return $contentView;
             }
             $password = password_hash($request->getPost('pwd'),PASSWORD_DEFAULT);
-            $collection = $this->getCollection();
-            $result = $collection->insertOne( [ 'name' => $name, 'username' => $username,'password'=>$password ] );
+            $user = new User();
+            $user->setId(new MongoDB\BSON\ObjectId());
+            $user->setName($name);
+            $user->setEmail($email);
+            $user->setPassword($password);
+            $dm->persist($user);
+            $dm->flush();
             return $this->redirect()->toRoute('user');
         }
         else{
@@ -67,61 +77,78 @@ class IndexController extends AbstractActionController
 
     public function editAction()
     {
+        $dm = (new Config())->getConnection();
         $id = $this->params()->fromRoute('id');
-        $collection = $this->getCollection();
-        $user = $collection->findOne(["_id"=> new MongoDB\BSON\ObjectId("$id")]);
-        $contentView = new ViewModel(["user"=>$user]);
+        $user = $dm->createQueryBuilder('Document\User')->hydrate(false)->field('_id')->equals($id)
+        ->getQuery()->execute();
+        $user = iterator_to_array($user);
+        $contentView = new ViewModel(["user"=>$user[$id]]);
         $contentView->setTemplate('user/update.phtml');
-            // $id = $this->params()->fromRoute('id');
         return $contentView;
     }
 
     public function deleteAction()
     {
+        $dm = (new Config())->getConnection();
         $id = $this->params()->fromRoute('id');
-        $collection = $this->getCollection();
-        $collection->deleteOne(array('_id' =>  new MongoDB\BSON\ObjectId("$id")));
+        $dm->createQueryBuilder('Document\User')
+        ->remove()
+        ->field('_id')->equals($id)
+        ->getQuery()
+        ->execute();
         return $this->redirect()->toRoute('user');
     }
 
     public function updateAction(){
+        $dm = (new Config())->getConnection();
         $id = $this->params()->fromRoute('id');
         $request = $this->getRequest();
-        $collection = $this->getCollection();
         $error = [];
-        $user = $collection->findOne(["_id"=> new MongoDB\BSON\ObjectId("$id")]);
-        
-            $username = $request->getPost('email');
-            $name = $request->getPost('name');
-            if($username != $user["username"]){
-            $existing_user =  $collection->count(array('username'=>$username));
+        $user = $dm->createQueryBuilder('Document\User')->hydrate(false)->field('_id')->equals($id)
+        ->getQuery()->execute();
+        $user = iterator_to_array($user)[$id];
+        $email = $request->getPost('email');
+        $name = $request->getPost('name');
+        $tempUser = ["_id"=>$id,"name"=>$name,"email"=>$email];
+        $password = $user["password"];
+        if($email != $user["email"]){
+            $existing_user =  $dm->createQueryBuilder('Document\User')->field('email')->equals($email)
+            ->getQuery()->execute()->count();
             if($existing_user>0){
                 $error["email"] = "Email already Exists!";
             }
-        }
+                
+            }
             $newdata;
             if(!empty($request->getPost('pwd_checkbox')) && empty($error)){
                 if(password_verify($request->getPost('opwd'),$user["password"])){
                     $password = password_hash($request->getPost('npwd'),PASSWORD_DEFAULT);
-                    $newData = array('$set'=>array("username"=>$username,"password"=>$password,"name"=>$name));
+                    $newData = array("email"=>$email,"password"=>$password,"name"=>$name);
             }
             else{
                 $error["password"] = "Old Password is Wrong!";
             }
         }
-        else if(empty($error)){
-            $newData = array('$set'=>array("username"=>$username,"name"=>$name));
-        }
-        if(empty($error)){
-            $collection->updateOne(["_id"=>new MongoDB\BSON\ObjectId("$id")],$newData);
-            return $this->redirect()->toRoute('user');
-        }
-        else{
-            $contentView = new ViewModel(["user"=>$user,"error"=>$error]);
-            $contentView->setTemplate('user/update.phtml');
-           
-            return $contentView;
-        }
+            else if(empty($error)){
+                $newData = array("email"=>$email,"name"=>$name);
+            }
+            if(empty($error)){
+                $dm->createQueryBuilder('Document\User')
+                ->updateOne()
+                ->field('name')->set($name)
+                ->field('email')->set($email)
+                ->field('password')->set($password)
+                ->field('_id')->equals($id)
+                ->getQuery()
+                ->execute();
+                return $this->redirect()->toRoute('user');
+            }
+            else{
+                $contentView = new ViewModel(["user"=>$tempUser,"error"=>$error]);
+                $contentView->setTemplate('user/update.phtml');
+            
+                return $contentView;
+            }
             
             
         
@@ -129,9 +156,4 @@ class IndexController extends AbstractActionController
         
     }
 
-    public function getCollection(){
-        $client = new MongoDB\Client("mongodb://localhost:27017");
-        $collection = $client->crud->users;
-        return $collection;
-    }
 }
