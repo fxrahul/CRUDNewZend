@@ -17,7 +17,7 @@ class Config{
         $config->setHydratorDir(__DIR__ . '/../module/User/Hydrators');
         $config->setHydratorNamespace('Hydrators');
         $config->setDefaultDB('crud');
-        $config->setMetadataDriverImpl(AnnotationDriver::create(__DIR__ .'/../module/User/Documents'));
+        $config->setMetadataDriverImpl(AnnotationDriver::create(__DIR__ .'/../module/User/Document'));
         AnnotationDriver::registerAnnotationClasses();
         $this->dm = DocumentManager::create(new Connection(), $config);
     }
